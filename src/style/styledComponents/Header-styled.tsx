@@ -9,6 +9,7 @@ export const Nav = styled(motion.div)`
   width: 100%;
   min-width: 100vmin;
   background-color: black;
+  z-index: 1;
 `;
 
 export const Col = styled(motion.div)`

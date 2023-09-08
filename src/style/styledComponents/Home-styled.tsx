@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   background: #000000;
-  margin-bottom: 15vmin;
+  margin-bottom: -25vh;
 `;
 
 export const Loader = styled.div`
@@ -39,7 +39,10 @@ export const Overview = styled.p`
 //Slide animation
 export const Slider = styled(motion.div)`
   position: relative;
-  top: -15vmin;
+  top: -20vmin;
+  width: 100%;
+  height: 10vmin;
+  margin-bottom: 12vmin;
 `;
 
 export const Row = styled(motion.div)`
@@ -83,7 +86,7 @@ export const movieBoxVar = {
   },
 };
 
-export const Deatil = styled(motion.div)`
+export const Detail = styled(motion.div)`
   position: absolute;
   width: 35vw;
   height: 80vh;
@@ -91,7 +94,9 @@ export const Deatil = styled(motion.div)`
   left: 0;
   right: 0;
   margin: 0 auto;
-  background-color: ${(props) => props.theme.white.darker};
+  border-radius: 1vmin;
+  background-color: ${(props) => props.theme.black.darker};
+  z-index: 2;
 `;
 
 export const Overlay = styled(motion.div)`
@@ -101,4 +106,11 @@ export const Overlay = styled(motion.div)`
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
+  z-index: 1;
+`;
+
+export const SlideTitle = styled.h1`
+  font-size: 2vmin;
+  margin-left: 2vmin;
+  margin-bottom: 1vmin;
 `;
