@@ -1,175 +1,128 @@
-import React, { useState } from "react";
-import { AnimatePresence, useScroll } from "framer-motion";
-import useWindowDimensions from "../useWindowDimensions";
-import { useMatch, useNavigate } from "react-router-dom";
-import { makeImagePath } from "../utils";
-import {
-  Detail,
-  MovieBox,
-  Overlay,
-  Row,
-  SlideTitle,
-  Slider,
-  movieBoxVar,
-} from "../style/styledComponents/Home-styled";
 import { IGetMovie } from "../api";
-import {
-  LeftMove,
-  MovieBackground,
-  RightMove,
-  SliderTitle,
-} from "../style/styledComponents/Slider-styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-
-const offset = 6;
+import {
+  LeftMove,
+  MovieBox,
+  MovieTitle,
+  RightMove,
+  Row,
+  RowVariants,
+  Slider,
+  SliderTitle,
+  TitleView,
+  movieBoxVar,
+} from "../style/styledComponents/Slider-styled";
+import { AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { makeImagePath } from "../utils";
+import useWindowDimensions from "../useWindowDimensions";
+import { PathMatch, useMatch, useNavigate } from "react-router-dom";
+import MovieDetail from "./MovieDetail";
 
 export interface ISlider {
-  data: IGetMovie;
+  data: IGetMovie | undefined;
   title: string;
+  category: string;
 }
 
-function SliderMovie({ data, title }: ISlider) {
-  const [index, setIndex] = useState(0);
+function SliderMovie({ data, title, category }: ISlider) {
+  const offset = 6; //슬라이드에 최대 영화개수
+  const [index, setIndex] = useState(0); //슬라이드 페이지 인덱스
+  const [direction, setDirection] = useState(true); //슬라이드 방향
+
+  //슬라이드 애니메이션 에러방지를 위한 애니메이션이 끝났는지 확인
   const [leaving, setLeaving] = useState(false);
-  const [clickReverse, setClickReverse] = useState(false);
-
   const toggleLeaving = () => setLeaving((prev) => !prev);
-  const onRightSlide = () => {
+
+  //슬라이드 contents 최대 6개표시
+  const movieContents = data?.results.slice(
+    offset * index,
+    offset * index + offset
+  );
+
+  const onClickAfter = () => {
+    //다음 영화 목록
     if (data) {
-      if (leaving) return;
-      setClickReverse(false);
-      toggleLeaving();
-      const totalMovies = data.results.length - 1;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
-      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      if (leaving) {
+        return;
+      } else {
+        const totalMovies = data.results.length;
+        const maxIndex = Math.floor(totalMovies / offset);
+        toggleLeaving();
+        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+        setDirection(() => true);
+      }
     }
   };
 
-  const onLeftSlide = () => {
+  const onClickBefore = () => {
+    //이전 영화 목록
     if (data) {
-      if (leaving) return;
-      setClickReverse(true);
-      toggleLeaving();
-      const totalMovies = data.results.length - 1;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
-      setIndex((prev) => (prev === maxIndex ? 0 : prev - 1));
+      if (leaving) {
+        return;
+      } else {
+        const totalMovies = data.results.length;
+        const maxIndex = Math.floor(totalMovies / offset) - 1;
+
+        toggleLeaving();
+        setIndex((prev) => (prev === 0 ? maxIndex - 1 : prev - 1));
+        setDirection(() => false);
+      }
     }
   };
 
-  const windowWidth = useWindowDimensions();
-
-  const onMovieClick = (movieId: number) => {
-    history(`/movie/${movieId}`);
+  const navigate = useNavigate();
+  const movieBoxClick = (movieId: number) => {
+    navigate(`/movies/${movieId}`);
   };
+  const movieMatching: PathMatch<string> | null = useMatch("/movies/:movieId");
 
-  const history = useNavigate();
-  const movieMatch = useMatch("/movie/:movieId");
-  const { scrollY } = useScroll();
-  const onOverlay = () => history(-1);
-
-  const rowVariants = {
-    hidden: ({
-      windowWidth,
-      clickReverse,
-    }: {
-      windowWidth: number;
-      clickReverse: boolean;
-    }) => ({
-      x: clickReverse ? -windowWidth - 13 : windowWidth + 13,
-    }),
-    visible: {
-      x: 0,
-    },
-    exit: ({
-      windowWidth,
-      clickReverse,
-    }: {
-      windowWidth: number;
-      clickReverse: boolean;
-    }) => ({
-      x: clickReverse ? windowWidth + 13 : -windowWidth - 13,
-    }),
-  };
-
-  const movieInfo =
-    movieMatch?.params.movieId &&
-    data.results.find(
-      (movie) => String(movie.id) === movieMatch.params.movieId
-    );
-  console.log(movieInfo);
   return (
-    <>
-      <Slider>
-        <SlideTitle>{title}</SlideTitle>
-        <RightMove onClick={onRightSlide}>
-          <FontAwesomeIcon icon={faChevronRight} size="2x" />
-        </RightMove>
-        <LeftMove onClick={onLeftSlide}>
-          <FontAwesomeIcon icon={faChevronLeft} size="2x" />
-        </LeftMove>
-        <AnimatePresence
-          initial={false}
-          onExitComplete={toggleLeaving}
-          custom={{ windowWidth, clickReverse }}>
-          <Row
-            custom={{ windowWidth, clickReverse }}
-            variants={rowVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ type: "tween", duration: 1 }}
-            key={index}>
-            {data?.results
-              .slice(1)
-              .slice(offset * index, offset * index + offset)
-              .map((movie) => (
-                <MovieBox
-                  layoutId={movie.id + ""}
-                  key={movie.id}
-                  onClick={() => onMovieClick(movie.id)}
-                  $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                  variants={movieBoxVar}
-                  whileHover="hover"
-                  initial="normal"
-                  transition={{ type: "tween" }}>
-                  <SliderTitle>{movie.title}</SliderTitle>
-                </MovieBox>
-              ))}
-          </Row>
-        </AnimatePresence>
-      </Slider>
-      <AnimatePresence>
-        {movieMatch ? (
-          <>
-            <Overlay
-              onClick={onOverlay}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <Detail
-              style={{ top: scrollY.get() + 100 }}
-              layoutId={movieMatch.params.movieId}>
-              {movieInfo && (
-                <>
-                  <MovieBackground
-                    style={{
-                      backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImagePath(
-                        movieInfo.backdrop_path,
-                        "w500"
-                      )})`,
-                    }}
-                  />
-                </>
-              )}
-            </Detail>
-          </>
-        ) : null}
+    <Slider>
+      <SliderTitle>{title}</SliderTitle>
+      <AnimatePresence
+        custom={direction}
+        initial={false}
+        onExitComplete={toggleLeaving}>
+        <Row
+          key={category + index}
+          custom={direction}
+          variants={RowVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          transition={{ type: "tween", duration: 1 }}>
+          {movieContents &&
+            movieContents.map((movie) => (
+              <MovieBox
+                onClick={() => movieBoxClick(movie.id)}
+                key={category + movie.id}
+                variants={movieBoxVar}
+                initial="normal"
+                whileHover="hover"
+                transition={{ type: "tween", duration: 0.3 }}
+                $bgPhoto={makeImagePath(movie.backdrop_path)}>
+                <MovieTitle variants={TitleView}>{movie.title}</MovieTitle>
+              </MovieBox>
+            ))}
+          <RightMove onClick={onClickAfter}>
+            <FontAwesomeIcon icon={faChevronRight} size="2xl" />
+          </RightMove>
+          <LeftMove onClick={onClickBefore}>
+            <FontAwesomeIcon icon={faChevronLeft} size="2xl" />
+          </LeftMove>
+        </Row>
       </AnimatePresence>
-    </>
+      {movieMatching ? (
+        <>
+          <MovieDetail id={movieMatching.params.movieId!} category={category} />
+        </>
+      ) : null}
+    </Slider>
   );
 }
 
