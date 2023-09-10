@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/NetFlix/static/css/main.6e6df1bc.css",
-    "main.js": "/NetFlix/static/js/main.6a4fd51f.js",
+    "main.js": "/NetFlix/static/js/main.a6af3dc3.js",
     "index.html": "/NetFlix/index.html",
-    "main.6a4fd51f.js.map": "/NetFlix/static/js/main.6a4fd51f.js.map"
+    "main.a6af3dc3.js.map": "/NetFlix/static/js/main.a6af3dc3.js.map"
   },
   "entrypoints": [
     "static/css/main.6e6df1bc.css",
-    "static/js/main.6a4fd51f.js"
+    "static/js/main.a6af3dc3.js"
   ]
 }
