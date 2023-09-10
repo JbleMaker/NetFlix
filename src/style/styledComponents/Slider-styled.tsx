@@ -33,7 +33,7 @@ export const RowVariants = {
   },
 };
 
-export const MovieBox = styled(motion.div)<{ $bgPhoto: string }>`
+export const ShowBox = styled(motion.div)<{ $bgPhoto: string }>`
   background-color: white;
   background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
@@ -51,7 +51,7 @@ export const MovieBox = styled(motion.div)<{ $bgPhoto: string }>`
   }
 `;
 
-export const movieBoxVar = {
+export const showBoxVar = {
   normal: {
     scale: 1,
   },

@@ -26,7 +26,12 @@ import {
   Runtime,
 } from "../style/styledComponents/MovieDetail-styled";
 import { useQuery } from "@tanstack/react-query";
-import { ICreditData, IGetDetail, getCreditInfo, getDetailMovie } from "../api";
+import {
+  ICreditData,
+  IGetDetail,
+  getCreditInfo,
+  getDetailMovie,
+} from "../Api/MovieApi";
 import { makeImagePath } from "../utils";
 import { useEffect } from "react";
 
@@ -60,8 +65,6 @@ export default function MovieDetail({ id, category }: IMovieId) {
     (person) => person.known_for_department === "Directing"
   );
 
-  console.log(actor, director);
-
   return (
     <>
       <Overlay
@@ -79,6 +82,7 @@ export default function MovieDetail({ id, category }: IMovieId) {
         {detailData && creditData && (
           <>
             <BackGorundImage
+              onClick={onOverlay}
               $bgphoto={makeImagePath(detailData.backdrop_path + "", "w500")}>
               <PosterImage
                 $bgphoto={makeImagePath(detailData.poster_path + "", "w500")}

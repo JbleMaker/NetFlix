@@ -1,45 +1,41 @@
-import { IGetMovie } from "../Api/MovieApi";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronLeft,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
+import { AnimatePresence } from "framer-motion";
+import { IAiringToday } from "../Api/TvApi";
 import {
   LeftMove,
-  ShowBox,
   MovieTitle,
   RightMove,
   Row,
   RowVariants,
+  ShowBox,
   Slider,
   SliderTitle,
   TitleView,
   showBoxVar,
 } from "../style/styledComponents/Slider-styled";
-import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { makeImagePath } from "../utils";
-import useWindowDimensions from "../useWindowDimensions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
-import MovieDetail from "./MovieDetail";
+import { makeImagePath } from "../utils";
+import TvDetail from "./TvDetail";
 
-export interface ISlider {
-  data: IGetMovie | undefined;
+interface IGetTvShow {
+  data: IAiringToday | undefined;
   title: string;
   category: string;
 }
 
-function SliderMovie({ data, title, category }: ISlider) {
-  const offset = 6; //슬라이드에 최대 영화개수
-  const [index, setIndex] = useState(0); //슬라이드 페이지 인덱스
-  const [direction, setDirection] = useState(true); //슬라이드 방향
-
-  //슬라이드 애니메이션 에러방지를 위한 애니메이션이 끝났는지 확인
+export default function SliderTv({ data, title, category }: IGetTvShow) {
+  const offset = 6;
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
-  //슬라이드 contents 최대 6개표시
-  const movieContents = data?.results.slice(
+  const tvContents = data?.results.slice(
     offset * index,
     offset * index + offset
   );
@@ -50,8 +46,8 @@ function SliderMovie({ data, title, category }: ISlider) {
       if (leaving) {
         return;
       } else {
-        const totalMovies = data.results.length;
-        const maxIndex = Math.floor(totalMovies / offset);
+        const totalTvSerise = data.results.length;
+        const maxIndex = Math.floor(totalTvSerise / offset);
         toggleLeaving();
         setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
         setDirection(() => true);
@@ -65,8 +61,8 @@ function SliderMovie({ data, title, category }: ISlider) {
       if (leaving) {
         return;
       } else {
-        const totalMovies = data.results.length;
-        const maxIndex = Math.floor(totalMovies / offset) - 1;
+        const totalTvSerise = data.results.length;
+        const maxIndex = Math.floor(totalTvSerise / offset) - 1;
 
         toggleLeaving();
         setIndex((prev) => (prev === 0 ? maxIndex - 1 : prev - 1));
@@ -76,10 +72,11 @@ function SliderMovie({ data, title, category }: ISlider) {
   };
 
   const navigate = useNavigate();
-  const movieBoxClick = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const tvBoxClick = (tvId: number) => {
+    navigate(`/tv/${tvId}`);
   };
-  const movieMatching: PathMatch<string> | null = useMatch("/movies/:movieId");
+  const tvMatching: PathMatch<string> | null = useMatch("/tv/:id");
+  console.log(tvMatching);
 
   return (
     <Slider>
@@ -96,17 +93,23 @@ function SliderMovie({ data, title, category }: ISlider) {
           animate="visible"
           exit="exit"
           transition={{ type: "tween", duration: 1 }}>
-          {movieContents &&
-            movieContents.map((movie) => (
+          {tvContents &&
+            tvContents.map((tv) => (
               <ShowBox
-                onClick={() => movieBoxClick(movie.id)}
-                key={category + movie.id}
+                onClick={() => tvBoxClick(tv.id)}
+                key={category + tv.id}
                 variants={showBoxVar}
                 initial="normal"
                 whileHover="hover"
                 transition={{ type: "tween", duration: 0.3 }}
-                $bgPhoto={makeImagePath(movie.backdrop_path)}>
-                <MovieTitle variants={TitleView}>{movie.title}</MovieTitle>
+                $bgPhoto={makeImagePath(
+                  tv.backdrop_path
+                    ? tv.backdrop_path
+                    : tv.poster_path
+                    ? tv.poster_path
+                    : ""
+                )}>
+                <MovieTitle variants={TitleView}>{tv.name}</MovieTitle>
               </ShowBox>
             ))}
           <RightMove onClick={onClickAfter}>
@@ -117,13 +120,11 @@ function SliderMovie({ data, title, category }: ISlider) {
           </LeftMove>
         </Row>
       </AnimatePresence>
-      {movieMatching ? (
+      {tvMatching ? (
         <>
-          <MovieDetail id={movieMatching.params.movieId!} category={category} />
+          <TvDetail id={tvMatching.params.id!} category={category} />
         </>
       ) : null}
     </Slider>
   );
 }
-
-export default SliderMovie;

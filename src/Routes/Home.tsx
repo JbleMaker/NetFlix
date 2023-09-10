@@ -5,7 +5,7 @@ import {
   getPopularMovie,
   getUpcomingMovie,
   getTopRatedMovie,
-} from "../api";
+} from "../Api/MovieApi";
 import {
   Loader,
   Wrapper,

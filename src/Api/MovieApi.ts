@@ -97,13 +97,13 @@ export function getUpcomingMovie() {
 //Detail Movie Infomation
 export function getDetailMovie(id: string) {
   return fetch(
-    `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=${LANG}`
+    `${BASE_PATH}/movie/${id}?api_key=${API_KEY}&language=${LANG}`
   ).then((response) => response.json());
 }
 
 //Credit Actor
 export function getCreditInfo(id: string) {
   return fetch(
-    `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${API_KEY}&language=${LANG}`
+    `${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}&language=${LANG}`
   ).then((response) => response.json());
 }
